@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "xxx",
+    "x#x",
+    "xxx"
+  ],
+  "key": {
+    "x": {
+      "tag": "forge:ingots/iron"
+    },
+    "#": {
+      "item": "minecraft:bucket"
+    }
+  },
+  "result": {
+    "item": "moofluids:auto_milker"
+  }
+}

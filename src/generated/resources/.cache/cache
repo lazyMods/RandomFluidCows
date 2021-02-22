@@ -1,0 +1,8 @@
+bb8e87c8ca6918e0a7a6a657f139da5c172f4555 assets/moofluids/blockstates/auto_milker.json
+c1c4622129afdc1567964ed38dec5f26d42fbde0 assets/moofluids/lang/en_us.json
+4fb6c1b4c4b6bc7e43b73a2f9181fe533bdadf0c assets/moofluids/models/block/auto_milker.json
+3da55634bc03627baa91c81050fa768ef405310d assets/moofluids/models/item/auto_milker.json
+5a5fd9c84e95101266584ccb49bcb88ec3679c24 data/moofluids/advancements/recipes/misc/auto_milker.json
+cbf06bba6e1709542ed3adc302972ba475257b53 data/moofluids/loot_tables/blocks/auto_milker.json
+e0c556ac048d3ba95c3c83867f1ae5395b3a09c4 data/moofluids/loot_tables/entities/moo_fluid.json
+635ecb4a01284689e9c8416260399fbb65c33342 data/moofluids/recipes/auto_milker.json

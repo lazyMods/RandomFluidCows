@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "moofluids:block/auto_milker"
+    },
+    "facing=south": {
+      "model": "moofluids:block/auto_milker",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "moofluids:block/auto_milker",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "moofluids:block/auto_milker",
+      "y": 90
+    }
+  }
+}

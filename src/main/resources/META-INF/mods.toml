@@ -1,0 +1,14 @@
+modLoader="javafml" #mandatory
+loaderVersion="[35,)" #mandatory
+license="MIT"
+issueTrackerURL="http://my.issue.tracker/" #optional
+[[mods]] #mandatory
+modId="moofluids" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="MooFluids" #mandatory
+updateJSONURL="http://myurl.me/" #optional
+displayURL="http://example.com/" #optional
+logoFile="examplemod.png" #optional
+credits="Thanks for this example mod goes to Java" #optional
+authors="Love, Cheese and small house plants" #optional
+description='''Cows that contains different fluids.'''
