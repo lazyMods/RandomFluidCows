@@ -80,7 +80,7 @@ public class DataGen {
         @Override
         protected void registerModels() {
             this.getBuilder(Objects.requireNonNull(Setup.AUTO_MILKER.get().getRegistryName()).toString())
-                    .parent(new ModelFile.UncheckedModelFile(new ResourceLocation(MooFluids.MOD_ID, "blocks/auto_milker")));
+                    .parent(new ModelFile.UncheckedModelFile(new ResourceLocation(MooFluids.MOD_ID, "block/auto_milker")));
 
         }
     }
