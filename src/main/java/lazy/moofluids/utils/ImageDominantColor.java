@@ -10,11 +10,11 @@ import java.util.*;
  * @author lazy
  * changes:
  * - return the actual int color instead of hex
+ * - make optional the check for gray
  */
 public class ImageDominantColor {
 
-    public static int getColor(BufferedImage image) {
-
+    public static int getColor(BufferedImage image, boolean checkForGray) {
         Map<Integer, Integer> colorMap = new HashMap<>();
         int height = image.getHeight();
         int width = image.getWidth();
@@ -22,12 +22,17 @@ public class ImageDominantColor {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 int rgb = image.getRGB(i, j);
-                if (!isGray(getRGBArr(rgb))) {
-                    Integer counter = colorMap.get(rgb);
-                    if (counter == null) {
-                        counter = 0;
-                    }
 
+                Integer counter = colorMap.get(rgb);
+                if (counter == null) {
+                    counter = 0;
+                }
+
+                if (checkForGray) {
+                    if (!isGray(getRGBArr(rgb))) {
+                        colorMap.put(rgb, ++counter);
+                    }
+                } else {
                     colorMap.put(rgb, ++counter);
                 }
             }
@@ -43,7 +48,6 @@ public class ImageDominantColor {
                 -> ((Comparable) obj1.getValue()).compareTo(obj2.getValue()));
 
         Map.Entry<Integer, Integer> entry = list.get(list.size() - 1);
-
         return entry.getKey();
     }
 

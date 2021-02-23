@@ -28,7 +28,7 @@ public class FluidColorFromTexture {
                 try {
                     InputStream inputStream = Minecraft.getInstance().getResourceManager().getResource(full).getInputStream();
                     BufferedImage image = ImageIO.read(inputStream);
-                    COLORS.put(fluid, ImageDominantColor.getColor(image));
+                    COLORS.put(fluid, ImageDominantColor.getColor(image, false));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
