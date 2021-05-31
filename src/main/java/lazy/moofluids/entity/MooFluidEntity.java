@@ -20,7 +20,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
@@ -37,9 +36,9 @@ import java.util.Random;
 
 public class MooFluidEntity extends CowEntity {
 
-    private static final DataParameter<String> FLUID_NAME = EntityDataManager.createKey(MooFluidEntity.class, DataSerializers.STRING);
-    private static final DataParameter<Integer> DELAY = EntityDataManager.createKey(MooFluidEntity.class, DataSerializers.VARINT);
-    private static final DataParameter<Boolean> CAN_BE_MILKED = EntityDataManager.createKey(MooFluidEntity.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<String> FLUID_NAME = EntityDataManager.defineId(MooFluidEntity.class, DataSerializers.STRING);
+    private static final DataParameter<Integer> DELAY = EntityDataManager.defineId(MooFluidEntity.class, DataSerializers.INT);
+    private static final DataParameter<Boolean> CAN_BE_MILKED = EntityDataManager.defineId(MooFluidEntity.class, DataSerializers.BOOLEAN);
 
     private static final String TAG_FLUID = "FluidRegistryName";
     private static final String TAG_DELAY = "CurrentDelay";
@@ -49,38 +48,38 @@ public class MooFluidEntity extends CowEntity {
     }
 
     public static AttributeModifierMap createAttr() {
-        return CowEntity.func_233666_p_()
-                .createMutableAttribute(Attributes.FOLLOW_RANGE, 16F)
-                .createMutableAttribute(Attributes.MAX_HEALTH, 10F)
-                .createMutableAttribute(Attributes.MOVEMENT_SPEED, 0.2F)
-                .create();
+        return CowEntity.createAttributes()
+                .add(Attributes.FOLLOW_RANGE, 16F)
+                .add(Attributes.MAX_HEALTH, 10F)
+                .add(Attributes.MOVEMENT_SPEED, 0.2F)
+                .build();
     }
 
     @Override
-    protected void registerData() {
-        super.registerData();
-        this.dataManager.register(FLUID_NAME, Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString());
-        this.dataManager.register(DELAY, 1000);
-        this.dataManager.register(CAN_BE_MILKED, true);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(FLUID_NAME, Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString());
+        this.entityData.define(DELAY, 1000);
+        this.entityData.define(CAN_BE_MILKED, true);
     }
 
     @Override
     @ParametersAreNonnullByDefault
-    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) {
-        if (!worldIn.isRemote()) {
+    public ILivingEntityData finalizeSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag) {
+        if(!worldIn.isClientSide()) {
             this.setFluid(Objects.requireNonNull(this.getRandomFluid().getRegistryName()).toString());
-            if (this.getDelay() < 0) {
-                this.dataManager.set(CAN_BE_MILKED, true);
+            if(this.getDelay() < 0) {
+                this.entityData.set(CAN_BE_MILKED, true);
             }
         }
-        return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 
     @Override
-    public void livingTick() {
-        super.livingTick();
+    public void aiStep() {
+        super.aiStep();
 
-        if (this.getDelay() > 0 && !this.canBeMilked()) {
+        if(this.getDelay() > 0 && !this.canBeMilked()) {
             this.decreaseDelay();
         } else {
             this.setCanBeMilked(true);
@@ -91,22 +90,22 @@ public class MooFluidEntity extends CowEntity {
     @Override
     @Nonnull
     @ParametersAreNonnullByDefault
-    public ActionResultType applyPlayerInteraction(PlayerEntity player, Vector3d vec, Hand hand) {
-        if (!this.world.isRemote) {
-            if (this.canBeMilked()) {
-                if (this.getFluid() != Fluids.EMPTY) {
-                    if (hand == Hand.MAIN_HAND) {
-                        if (player.getHeldItem(hand).getItem() == Items.BUCKET) {
+    public ActionResultType mobInteract(PlayerEntity player, Hand hand) {
+        if(!this.level.isClientSide) {
+            if(this.canBeMilked()) {
+                if(this.getFluid() != Fluids.EMPTY) {
+                    if(hand == Hand.MAIN_HAND) {
+                        if(player.getItemInHand(hand).getItem() == Items.BUCKET) {
                             ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(this.getFluid(), 1000));
-                            if (player.getHeldItem(hand).getCount() > 1) {
-                                int slotID = player.inventory.getFirstEmptyStack();
-                                if (slotID != -1) {
-                                    player.inventory.mainInventory.set(slotID, stack);
-                                    player.getHeldItem(hand).shrink(1);
+                            if(player.getItemInHand(hand).getCount() > 1) {
+                                int slotID = player.inventory.getFreeSlot();
+                                if(slotID != -1) {
+                                    player.inventory.items.set(slotID, stack);
+                                    player.getItemInHand(hand).shrink(1);
                                     this.setCanBeMilked(false);
                                 }
                             } else {
-                                player.setHeldItem(hand, stack);
+                                player.setItemInHand(hand, stack);
                                 this.setCanBeMilked(false);
                             }
                             return ActionResultType.SUCCESS;
@@ -125,41 +124,41 @@ public class MooFluidEntity extends CowEntity {
     }
 
     @Override
-    public boolean canMateWith(@Nonnull AnimalEntity otherAnimal) {
+    public boolean canMate(@Nonnull AnimalEntity otherAnimal) {
         return false;
     }
 
     public boolean canBeMilked() {
-        return this.dataManager.get(CAN_BE_MILKED);
+        return this.entityData.get(CAN_BE_MILKED);
     }
 
     public void setCanBeMilked(boolean value) {
-        this.dataManager.set(CAN_BE_MILKED, value);
+        this.entityData.set(CAN_BE_MILKED, value);
     }
 
     public void setFluid(String reg) {
-        if (this.getFluid() == Fluids.EMPTY) {
-            this.dataManager.set(FLUID_NAME, reg);
+        if(this.getFluid() == Fluids.EMPTY) {
+            this.entityData.set(FLUID_NAME, reg);
         }
     }
 
     public Fluid getFluid() {
-        if (this.dataManager.get(FLUID_NAME).equals(Fluids.EMPTY.getRegistryName().toString()))
+        if(this.entityData.get(FLUID_NAME).equals(Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString()))
             return Fluids.EMPTY;
 
-        return MooFluidReg.get(this.dataManager.get(FLUID_NAME));
+        return MooFluidReg.get(this.entityData.get(FLUID_NAME));
     }
 
-    public FluidStack getFluidStack(){
+    public FluidStack getFluidStack() {
         return new FluidStack(this.getFluid(), FluidAttributes.BUCKET_VOLUME);
     }
 
     public int getDelay() {
-        return this.dataManager.get(DELAY);
+        return this.entityData.get(DELAY);
     }
 
     public void setDelay(int delay) {
-        this.dataManager.set(DELAY, delay);
+        this.entityData.set(DELAY, delay);
     }
 
     public void decreaseDelay() {
@@ -173,19 +172,19 @@ public class MooFluidEntity extends CowEntity {
     }
 
     @Override
-    public void writeAdditional(@Nonnull CompoundNBT compound) {
-        super.writeAdditional(compound);
+    public void addAdditionalSaveData(@Nonnull CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
         compound.putInt(TAG_DELAY, this.getDelay());
-        if(this.getFluid().getRegistryName() == null){
+        if(this.getFluid().getRegistryName() == null) {
             compound.putString(TAG_FLUID, Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString());
-        }else {
+        } else {
             compound.putString(TAG_FLUID, Objects.requireNonNull(this.getFluid().getRegistryName()).toString());
         }
     }
 
     @Override
-    public void readAdditional(@Nonnull CompoundNBT compound) {
-        super.readAdditional(compound);
+    public void readAdditionalSaveData(@Nonnull CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
         this.setFluid(compound.getString(TAG_FLUID));
         this.setDelay(compound.getInt(TAG_DELAY));
     }

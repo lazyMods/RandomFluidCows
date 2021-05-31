@@ -8,6 +8,8 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 
 @OnlyIn(Dist.CLIENT)
 public class MooFluidModel<T extends Entity> extends QuadrupedModel<T> {
@@ -19,28 +21,29 @@ public class MooFluidModel<T extends Entity> extends QuadrupedModel<T> {
 
     public MooFluidModel() {
         super(12, 0.0F, false, 10.0F, 4.0F, 2.0F, 2.0F, 24);
-        this.headModel = new ModelRenderer(this, 0, 0);
-        this.headModel.addBox(-4.0F, -4.0F, -6.0F, 8.0F, 8.0F, 6.0F, 0.0F);
-        this.headModel.setRotationPoint(0.0F, 4.0F, -8.0F);
-        this.headModel.setTextureOffset(22, 0).addBox(-5.0F, -5.0F, -4.0F, 1.0F, 3.0F, 1.0F, 0.0F);
-        this.headModel.setTextureOffset(22, 0).addBox(4.0F, -5.0F, -4.0F, 1.0F, 3.0F, 1.0F, 0.0F);
+        this.head = new ModelRenderer(this, 0, 0);
+        this.head.addBox(-4.0F, -4.0F, -6.0F, 8.0F, 8.0F, 6.0F, 0.0F);
+        this.head.setPos(0.0F, 4.0F, -8.0F);
+        this.head.texOffs(22, 0).addBox(-5.0F, -5.0F, -4.0F, 1.0F, 3.0F, 1.0F, 0.0F);
+        this.head.texOffs(22, 0).addBox(4.0F, -5.0F, -4.0F, 1.0F, 3.0F, 1.0F, 0.0F);
         this.body = new ModelRenderer(this, 18, 4);
         this.body.addBox(-6.0F, -10.0F, -7.0F, 12.0F, 18.0F, 10.0F, 0.0F);
-        this.body.setRotationPoint(0.0F, 5.0F, 2.0F);
-        this.body.setTextureOffset(52, 0).addBox(-2.0F, 2.0F, -8.0F, 4.0F, 6.0F, 1.0F);
-        --this.legBackRight.rotationPointX;
-        ++this.legBackLeft.rotationPointX;
-        this.legBackRight.rotationPointZ += 0.0F;
-        this.legBackLeft.rotationPointZ += 0.0F;
-        --this.legFrontRight.rotationPointX;
-        ++this.legFrontLeft.rotationPointX;
-        --this.legFrontRight.rotationPointZ;
-        --this.legFrontLeft.rotationPointZ;
+        this.body.setPos(0.0F, 5.0F, 2.0F);
+        this.body.texOffs(52, 0).addBox(-2.0F, 2.0F, -8.0F, 4.0F, 6.0F, 1.0F);
+        --this.leg0.x;
+        ++this.leg1.x;
+        this.leg0.z += 0.0F;
+        this.leg1.z += 0.0F;
+        --this.leg2.x;
+        ++this.leg3.x;
+        --this.leg2.z;
+        --this.leg3.z;
     }
 
     @Override
-    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        super.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, this.redTint * red, this.greenTint * green, this.blueTint * blue, this.alphaTint * alpha);
+    @ParametersAreNonnullByDefault
+    public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        super.renderToBuffer(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, this.redTint * red, this.greenTint * green, this.blueTint * blue, this.alphaTint * alpha);
     }
 
     public void setTint(float r, float g, float b, float a) {

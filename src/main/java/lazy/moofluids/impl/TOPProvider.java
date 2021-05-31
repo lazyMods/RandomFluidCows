@@ -63,8 +63,8 @@ public class TOPProvider {
 
         @Override
         public void addProbeInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, PlayerEntity playerEntity, World world, BlockState blockState, IProbeHitData iProbeHitData) {
-            if(world.getTileEntity(iProbeHitData.getPos()) instanceof AutoMilkerTile){
-                AutoMilkerTile autoMilkerTile = (AutoMilkerTile) world.getTileEntity(iProbeHitData.getPos());
+            if(world.getBlockEntity(iProbeHitData.getPos()) instanceof AutoMilkerTile){
+                AutoMilkerTile autoMilkerTile = (AutoMilkerTile) world.getBlockEntity(iProbeHitData.getPos());
                 if(autoMilkerTile != null){
                     iProbeInfo.text(new StringTextComponent("Capacity: " + autoMilkerTile.getFluidAmount() + "/" + autoMilkerTile.getCapacity()));
                     iProbeInfo.text(new StringTextComponent("Timer: " + autoMilkerTile.getTimer()));

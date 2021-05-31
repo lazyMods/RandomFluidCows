@@ -16,7 +16,6 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.fonts.Font;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -24,17 +23,15 @@ import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
 
     @Override
+    @Nonnull
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(MooFluids.MOD_ID, "jei_plugin");
     }
@@ -63,15 +60,15 @@ public class JEIPlugin implements IModPlugin {
         }
 
         @Override
-        public void draw(Fluid fluid, MatrixStack matrixStack, double mouseX, double mouseY) {
-            FontRenderer fr = Minecraft.getInstance().fontRenderer;
-            FluidStack stack = new FluidStack(fluid.getFluid(),1);
+        public void draw(Fluid fluid, @Nonnull MatrixStack matrixStack, double mouseX, double mouseY) {
+            FontRenderer fr = Minecraft.getInstance().font;
+            FluidStack stack = new FluidStack(fluid.getFluid(), 1);
             String stackName = stack.getDisplayName().getString();
             if(stackName.contains(".")) stackName = stackName.split("\\.")[2];
             StringTextComponent toDisplay = new StringTextComponent("MooFluid with " + stackName);
             int y = 22;
-            for(IReorderingProcessor rp : fr.trimStringToWidth(toDisplay, 87)) {
-                fr.func_238415_a_(rp, 0, y, 0, matrixStack.getLast().getMatrix(), false);
+            for (IReorderingProcessor rp : fr.split(toDisplay, 87)) {
+                fr.drawInternal(rp, 0, y, 0, matrixStack.last().pose(), false);
                 y += 9;
             }
         }
@@ -110,10 +107,11 @@ public class JEIPlugin implements IModPlugin {
         @Override
         public void setIngredients(Fluid fluid, IIngredients iIngredients) {
             iIngredients.setInput(VanillaTypes.ITEM, new ItemStack(Items.BUCKET));
-            iIngredients.setOutput(VanillaTypes.ITEM, new ItemStack(fluid.getFilledBucket()));
+            iIngredients.setOutput(VanillaTypes.ITEM, new ItemStack(fluid.getBucket()));
         }
 
         @Override
+        @ParametersAreNonnullByDefault
         public void setRecipe(IRecipeLayout iRecipeLayout, Fluid fluid, IIngredients iIngredients) {
             IGuiItemStackGroup guiItemStacks = iRecipeLayout.getItemStacks();
             guiItemStacks.init(0, true, 0, 0);

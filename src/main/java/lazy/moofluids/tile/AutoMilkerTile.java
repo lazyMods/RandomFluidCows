@@ -73,7 +73,7 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
                     return isEmpty();
                 case 3:
                     int color = storage.getFluid().getFluid().getAttributes().getColor();
-                    if (color == -1 && FluidColorFromTexture.COLORS.containsKey(storage.getFluid().getFluid()))
+                    if(color == -1 && FluidColorFromTexture.COLORS.containsKey(storage.getFluid().getFluid()))
                         color = FluidColorFromTexture.COLORS.get(storage.getFluid().getFluid());
                     return color;
                 default:
@@ -86,7 +86,7 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
         }
 
         @Override
-        public int size() {
+        public int getCount() {
             return DATA_SIZE;
         }
     };
@@ -97,16 +97,16 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
 
     @Override
     public void tick() {
-        Preconditions.checkNotNull(this.world);
-        if (!this.world.isRemote) {
+        Preconditions.checkNotNull(this.level);
+        if(!this.level.isClientSide) {
             this.setFacing();
-            if (!this.getMooFluidInSpace(this.world).isEmpty()) {
+            if(!this.getMooFluidInSpace(this.level).isEmpty()) {
                 this.increaseTimer();
-                if (this.finished()) {
-                    for (MooFluidEntity mooFluid : this.getMooFluidInSpace(this.world)) {
+                if(this.finished()) {
+                    for (MooFluidEntity mooFluid : this.getMooFluidInSpace(this.level)) {
                         int remainder = this.storage.fill(mooFluid.getFluidStack(), FluidAction.SIMULATE);
-                        if (remainder != 0 && mooFluid.canBeMilked()) {
-                            this.world.playSound(null, this.pos, SoundEvents.ENTITY_COW_MILK, SoundCategory.AMBIENT, 1f, 1f);
+                        if(remainder != 0 && mooFluid.canBeMilked()) {
+                            this.level.playSound(null, this.worldPosition, SoundEvents.COW_MILK, SoundCategory.AMBIENT, 1f, 1f);
                             mooFluid.setCanBeMilked(false);
                             mooFluid.setDelay(1000);
                             this.storage.fill(mooFluid.getFluidStack(), FluidAction.EXECUTE);
@@ -118,8 +118,8 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
 
             boolean hasEmptyBucket = this.tileInv.getStackInSlot(0).getItem() == Items.BUCKET;
             boolean outputIsEmpty = this.tileInv.getStackInSlot(1).isEmpty();
-            if (hasEmptyBucket && outputIsEmpty) {
-                if (!this.storage.isEmpty()) {
+            if(hasEmptyBucket && outputIsEmpty) {
+                if(!this.storage.isEmpty()) {
                     this.tileInv.extractItem(0, 1, false);
                     this.tileInv.insertItem(1, FluidUtil.getFilledBucket(this.storage.getFluid()), false);
                     this.storage.drain(FluidAttributes.BUCKET_VOLUME, FluidAction.EXECUTE);
@@ -128,13 +128,13 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
         }
     }
 
-    public List<MooFluidEntity> getMooFluidInSpace(@Nonnull World world) {
-        return world.getEntitiesWithinAABB(MooFluidEntity.class, new AxisAlignedBB(this.getFacingPos()));
+    public List<MooFluidEntity> getMooFluidInSpace(@Nonnull World level) {
+        return level.getEntitiesOfClass(MooFluidEntity.class, new AxisAlignedBB(this.getFacingPos()));
     }
 
     private void setFacing() {
-        if (this.facing == null && this.getBlockState().hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            this.facing = this.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING);
+        if(this.facing == null && this.getBlockState().hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            this.facing = this.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         }
     }
 
@@ -143,39 +143,40 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
     }
 
     private BlockPos getFacingPos() {
-        return this.pos.offset(this.facing);
+        return this.worldPosition.offset(this.facing.getNormal());
     }
 
     private void increaseTimer() {
         this.timer++;
-        this.markDirty();
+        this.setChanged();
+
     }
 
     private void resetTimer() {
         this.timer = 0;
-        this.markDirty();
+        this.setChanged();
     }
 
     private boolean finished() {
         return this.timer >= this.finishTime;
     }
 
-    public int getCapacity(){
+    public int getCapacity() {
         return this.storage.getCapacity();
     }
 
-    public int getFluidAmount(){
+    public int getFluidAmount() {
         return this.storage.getFluidAmount();
     }
 
-    public int getTimer(){
+    public int getTimer() {
         return this.timer;
     }
 
     @Override
     @ParametersAreNonnullByDefault
-    public void read(BlockState state, CompoundNBT nbt) {
-        super.read(state, nbt);
+    public void load(BlockState state, CompoundNBT nbt) {
+        super.load(state, nbt);
         this.timer = nbt.getInt(TAG_TIME);
         this.storage.readFromNBT(nbt);
         this.tileInv.deserializeNBT(nbt.getCompound(TAG_INV));
@@ -184,8 +185,8 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
     @Override
     @Nonnull
     @ParametersAreNonnullByDefault
-    public CompoundNBT write(CompoundNBT compound) {
-        CompoundNBT nbt = super.write(compound);
+    public CompoundNBT save(CompoundNBT compound) {
+        CompoundNBT nbt = super.save(compound);
         nbt.putInt(TAG_TIME, this.timer);
         this.storage.writeToNBT(compound);
         nbt.put(TAG_INV, this.tileInv.serializeNBT());
@@ -195,7 +196,7 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (!this.isRemoved() && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && side != this.facing) {
+        if(!this.isRemoved() && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && side != this.facing) {
             return this.fluidCap.cast();
         }
         return super.getCapability(cap, side);

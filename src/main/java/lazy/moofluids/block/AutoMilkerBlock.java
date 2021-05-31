@@ -18,24 +18,29 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@SuppressWarnings("deprecation")
 public class AutoMilkerBlock extends Block {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public AutoMilkerBlock() {
-        super(Properties.create(Material.ANVIL));
-        this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH));
+        super(Properties.of(Material.HEAVY_METAL));
+        this.defaultBlockState().setValue(FACING, Direction.NORTH);
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        if (worldIn.isRemote) {
+    @Nonnull
+    @ParametersAreNonnullByDefault
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+        if(worldIn.isClientSide) {
             return ActionResultType.SUCCESS;
         } else {
-            if (worldIn.getTileEntity(pos) instanceof AutoMilkerTile) {
-                player.openContainer((INamedContainerProvider) worldIn.getTileEntity(pos));
+            if(worldIn.getBlockEntity(pos) instanceof AutoMilkerTile) {
+                player.openMenu((INamedContainerProvider) worldIn.getBlockEntity(pos));
             }
             return ActionResultType.CONSUME;
         }
@@ -43,21 +48,23 @@ public class AutoMilkerBlock extends Block {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return this.getDefaultState().with(FACING, context.getPlacementHorizontalFacing().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
+    @Nonnull
     public BlockState rotate(BlockState state, Rotation rot) {
-        return state.with(FACING, rot.rotate(state.get(FACING)));
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
+    @Nonnull
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
-        return state.rotate(mirrorIn.toRotation(state.get(FACING)));
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
 

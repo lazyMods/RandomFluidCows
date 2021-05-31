@@ -29,13 +29,13 @@ public class AutoMilkerContainer extends Container {
 
         this.addSlot(new SlotItemHandler(tileInv, 0, 26, 36){
             @Override
-            public boolean isItemValid(@Nonnull ItemStack stack) {
+            public boolean mayPlace(@Nonnull ItemStack stack) {
                 return stack.getItem() == Items.BUCKET;
             }
         });
         this.addSlot(new SlotItemHandler(tileInv, 1, 134, 36){
             @Override
-            public boolean isItemValid(@Nonnull ItemStack stack) {
+            public boolean mayPlace(@Nonnull ItemStack stack) {
                 return stack.getItem() instanceof BucketItem && ((BucketItem)stack.getItem()).getFluid() != Fluids.EMPTY;
             }
         });
@@ -50,7 +50,7 @@ public class AutoMilkerContainer extends Container {
             this.addSlot(new Slot(inventory, k, 8 + k * 18, 142));
         }
 
-        this.trackIntArray(data);
+        this.addDataSlots(data);
     }
 
     public int getFluidAmount(){
@@ -74,7 +74,7 @@ public class AutoMilkerContainer extends Container {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn) {
+    public boolean stillValid(@Nonnull PlayerEntity playerIn) {
         return true;
     }
 }

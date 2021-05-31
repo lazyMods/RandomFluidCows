@@ -1,6 +1,5 @@
 package lazy.moofluids.client.screen;
 
-import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import lazy.moofluids.MooFluids;
@@ -32,45 +31,45 @@ public class AutoMilkerScreen extends ContainerScreen<AutoMilkerContainer> {
     public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
-        if (this.hoveredSlot != null && !this.hoveredSlot.getHasStack()) {
-            if (this.hoveredSlot.slotNumber == 0) {
+        this.renderTooltip(matrixStack, mouseX, mouseY);
+        if(this.hoveredSlot != null && !this.hoveredSlot.hasItem()) {
+            if(this.hoveredSlot.index == 0) {
                 this.renderTooltip(matrixStack, new StringTextComponent("Input (Empty Bucket)"), mouseX, mouseY);
             } else {
                 this.renderTooltip(matrixStack, new StringTextComponent("Output"), mouseX, mouseY);
             }
         }
 
-        if (mouseX > this.guiLeft + 61 && mouseX < this.guiLeft + 61 + 54 && mouseY > this.guiTop + 14 && mouseY < this.guiTop + 14 + 64) {
-            Fluid fluidFromColor = FluidColorFromTexture.getFluidFromColor(this.container.getFluidColor());
+        if(mouseX > this.leftPos + 61 && mouseX < this.leftPos + 61 + 54 && mouseY > this.topPos + 14 && mouseY < this.topPos + 14 + 64) {
+            Fluid fluidFromColor = FluidColorFromTexture.getFluidFromColor(this.menu.getFluidColor());
             String fluidName = new FluidStack(fluidFromColor, FluidAttributes.BUCKET_VOLUME).getDisplayName().getString();
-            this.renderTooltip(matrixStack, new StringTextComponent(fluidName + ": " + this.container.getFluidAmount() + "/" + this.container.getCapacity()), mouseX, mouseY);
+            this.renderTooltip(matrixStack, new StringTextComponent(fluidName + ": " + this.menu.getFluidAmount() + "/" + this.menu.getCapacity()), mouseX, mouseY);
         }
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    protected void drawGuiContainerBackgroundLayer(@Nonnull MatrixStack matrixStack, float partialTicks, int x, int y) {
-        GlStateManager.color4f(1f, 1f, 1f, 1f);
-        if (this.minecraft != null) {
-            this.minecraft.getTextureManager().bindTexture(BACKGROUND);
-            int i = this.guiLeft;
-            int j = this.guiTop;
-            this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int x, int y) {
+        GlStateManager._color4f(1f, 1f, 1f, 1f);
+        if(this.minecraft != null) {
+            this.minecraft.getTextureManager().bind(BACKGROUND);
+            int i = this.leftPos;
+            int j = this.topPos;
+            this.blit(matrixStack, i, j, 0, 0, this.width, this.height);
 
-            if (!this.container.isEmpty()) {
+            if(!this.menu.isEmpty()) {
                 this.setFluidAmount();
-                int startY = this.guiTop + 15 + 62 - (int) (this.fluidPercentage * 62);
-                float[] rgba = this.convert(this.container.getFluidColor());
-                GlStateManager.color4f(rgba[0], rgba[1], rgba[2], rgba[3]);
-                this.blit(matrixStack, this.guiLeft + 62, startY, 176, 0, 52, (int) (this.fluidPercentage * 62));
+                int startY = this.topPos + 15 + 62 - (int) (this.fluidPercentage * 62);
+                float[] rgba = this.convert(this.menu.getFluidColor());
+                GlStateManager._color4f(rgba[0], rgba[1], rgba[2], rgba[3]);
+                this.blit(matrixStack, this.leftPos + 62, startY, 176, 0, 52, (int) (this.fluidPercentage * 62));
             }
         }
     }
 
     public void setFluidAmount() {
-        this.fluidAmount = this.container.getFluidAmount();
-        this.fluidPercentage = this.fluidAmount / (float) this.container.getCapacity();
+        this.fluidAmount = this.menu.getFluidAmount();
+        this.fluidPercentage = this.fluidAmount / (float) this.menu.getCapacity();
     }
 
     private float[] convert(int color) {

@@ -26,6 +26,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -34,10 +35,12 @@ public class DataGen {
 
     @SubscribeEvent
     public static void onDataGen(GatherDataEvent event) {
-        if (event.includeClient()) {
+        if(event.includeClient()) {
             event.getGenerator().addProvider(new BlockStateGen(event.getGenerator(), event.getExistingFileHelper()));
             event.getGenerator().addProvider(new LanguageGen(event.getGenerator(), "en_us"));
             event.getGenerator().addProvider(new ItemModelGen(event.getGenerator(), event.getExistingFileHelper()));
+        }
+        if(event.includeServer()) {
             event.getGenerator().addProvider(new LootTableGen(event.getGenerator()));
             event.getGenerator().addProvider(new RecipeGen(event.getGenerator()));
         }
@@ -94,26 +97,22 @@ public class DataGen {
         @Override
         protected void addTables() {
             this.blockLootTables.put(Setup.AUTO_MILKER.get(),
-                    LootTable.builder().addLootPool(new LootPool.Builder()
-                            .name("auto_milker")
-                            .addEntry(ItemLootEntry.builder(Setup.AUTO_MILKER.get()))
-                    )
+                    LootTable.lootTable().withPool(LootPool.lootPool().name("auto_milker").add(ItemLootEntry.lootTableItem(Setup.AUTO_MILKER.get())))
             );
             this.entityLootTables.put(Setup.MOO_FLUID.get(),
-                    LootTable.builder().addLootPool(new LootPool.Builder()
-                            .rolls(ConstantRange.of(1))
-                            .addEntry(ItemLootEntry.builder(Items.LEATHER)
-                                    .acceptFunction(SetCount.builder(RandomValueRange.of(0.0F, 2.0F)))
-                                    .acceptFunction(LootingEnchantBonus.builder(RandomValueRange.of(0.0F, 1.0F)))))
-                            .addLootPool(LootPool.builder().rolls(ConstantRange.of(1))
-                                    .addEntry(ItemLootEntry.builder(Items.BEEF)
-                                            .acceptFunction(SetCount.builder(RandomValueRange.of(1.0F, 3.0F)))
-                                            .acceptFunction(Smelt.func_215953_b()
-                                                    .acceptCondition(EntityHasProperty.builder(LootContext.EntityTarget.THIS,
-                                                            EntityPredicate.Builder.create()
-                                                                    .flags(EntityFlagsPredicate.Builder.create()
-                                                                            .onFire(true).build()))))
-                                            .acceptFunction(LootingEnchantBonus.builder(RandomValueRange.of(0.0F, 1.0F)))
+                    LootTable.lootTable()
+                            .withPool(LootPool.lootPool()
+                                    .setRolls(ConstantRange.exactly(1))
+                                    .add(ItemLootEntry.lootTableItem(Items.LEATHER)
+                                            .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
+                                            .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F)))
+                                    )
+                            )
+                            .withPool(LootPool.lootPool().setRolls(ConstantRange.exactly(1))
+                                    .add(ItemLootEntry.lootTableItem(Items.BEEF)
+                                            .apply(SetCount.setCount(RandomValueRange.between(1.0F, 3.0F)))
+                                            .apply(Smelt.smelted().when(EntityHasProperty.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().flags(EntityFlagsPredicate.Builder.flags().setOnFire(true).build()))))
+                                            .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F)))
                                     )
                             )
             );
@@ -126,15 +125,15 @@ public class DataGen {
         }
 
         @Override
-        protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
-            ShapedRecipeBuilder.shapedRecipe(Setup.AUTO_MILKER.get())
-                    .patternLine("xxx")
-                    .patternLine("x#x")
-                    .patternLine("xxx")
-                    .key('x', Tags.Items.INGOTS_IRON)
-                    .key('#', Items.BUCKET)
-                    .addCriterion("iron_ingot", InventoryChangeTrigger.Instance.forItems(Items.IRON_INGOT))
-                    .build(consumer);
+        protected void buildShapelessRecipes(@Nonnull Consumer<IFinishedRecipe> consumer) {
+            ShapedRecipeBuilder.shaped(Setup.AUTO_MILKER.get())
+                    .pattern("xxx")
+                    .pattern("x#x")
+                    .pattern("xxx")
+                    .define('x', Tags.Items.INGOTS_IRON)
+                    .define('#', Items.BUCKET)
+                    .unlockedBy("iron_ingot", InventoryChangeTrigger.Instance.hasItems(Items.IRON_INGOT))
+                    .save(consumer);
         }
     }
 }

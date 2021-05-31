@@ -4,7 +4,6 @@ import lazy.moofluids.block.AutoMilkerBlock;
 import lazy.moofluids.entity.MooFluidEntity;
 import lazy.moofluids.inventory.container.AutoMilkerContainer;
 import lazy.moofluids.tile.AutoMilkerTile;
-import lazy.moofluids.utils.MooFluidReg;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -12,7 +11,6 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.RegistryObject;
@@ -29,17 +27,18 @@ public class Setup {
     public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MooFluids.MOD_ID);
 
     public static final RegistryObject<EntityType<MooFluidEntity>> MOO_FLUID = ENTITIES.register("moo_fluid", () ->
-            EntityType.Builder.create(MooFluidEntity::new, EntityClassification.CREATURE)
-                    .size(0.9F, 1.4F).trackingRange(10)
+            EntityType.Builder.of(MooFluidEntity::new, EntityClassification.CREATURE)
+                    .sized(0.9F, 1.4F).setTrackingRange(10)
                     .build("moo_fluid"));
 
     public static final RegistryObject<Block> AUTO_MILKER = BLOCKS.register("auto_milker", AutoMilkerBlock::new);
 
     public static final RegistryObject<Item> AUTO_MILKER_ITEM = ITEMS.register("auto_milker",
-            ()-> new BlockItem(AUTO_MILKER.get(), new Item.Properties().group(ItemGroup.MISC)));
+            () -> new BlockItem(AUTO_MILKER.get(), new Item.Properties().tab(ItemGroup.TAB_MISC)));
 
+    @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<TileEntityType<AutoMilkerTile>> AUTO_MILKER_TYPE = TILES.register("auto_milker",
-            ()-> TileEntityType.Builder.create(AutoMilkerTile::new, AUTO_MILKER.get()).build(null));
+            () -> TileEntityType.Builder.of(AutoMilkerTile::new, AUTO_MILKER.get()).build(null));
 
     public static final RegistryObject<ContainerType<AutoMilkerContainer>> AUTO_MILKER_CONTAINER = CONTAINERS.register("auto_milker",
             () -> IForgeContainerType.create((windowId, inv, data) -> new AutoMilkerContainer(windowId, inv)));

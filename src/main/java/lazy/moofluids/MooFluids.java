@@ -32,7 +32,7 @@ public class MooFluids {
 
     public void onClientSetup(FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(Setup.MOO_FLUID.get(), MooFluidRenderer::new);
-        ScreenManager.registerFactory(Setup.AUTO_MILKER_CONTAINER.get(), AutoMilkerScreen::new);
+        ScreenManager.register(Setup.AUTO_MILKER_CONTAINER.get(), AutoMilkerScreen::new);
     }
 
     public void onSetup(FMLCommonSetupEvent event) {

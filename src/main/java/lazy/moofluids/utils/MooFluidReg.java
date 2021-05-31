@@ -12,12 +12,11 @@ public class MooFluidReg {
 
     private static final List<Fluid> FLUIDS = Lists.newArrayList();
 
-    public static boolean add(Fluid fluid) {
-        if (exists(fluid)) return false;
-        if (fluid == Fluids.EMPTY) return false;
-        if (!fluid.isSource(fluid.getDefaultState())) return false;
+    public static void add(Fluid fluid) {
+        if (exists(fluid)) return;
+        if (fluid == Fluids.EMPTY) return;
+        if (!fluid.isSource(fluid.defaultFluidState())) return;
         FLUIDS.add(fluid);
-        return true;
     }
 
     public static boolean exists(Fluid fluid) {

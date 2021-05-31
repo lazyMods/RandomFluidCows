@@ -34,6 +34,7 @@ public abstract class BaseLootTableProvider extends LootTableProvider {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     protected final Map<Block, LootTable.Builder> blockLootTables = new HashMap<>();
+    @SuppressWarnings("rawtypes")
     protected final Map<EntityType, LootTable.Builder> entityLootTables = new HashMap<>();
     private final DataGenerator generator;
 
@@ -45,12 +46,12 @@ public abstract class BaseLootTableProvider extends LootTableProvider {
     protected abstract void addTables();
 
     @Override
-    public void act(@Nonnull DirectoryCache cache) {
+    public void run(@Nonnull DirectoryCache cache) {
         this.addTables();
 
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
-        blockLootTables.forEach((k, v)-> tables.put(k.getLootTable(), v.setParameterSet(LootParameterSets.BLOCK).build()));
-        entityLootTables.forEach((k, v)-> tables.put(k.getLootTable(), v.setParameterSet(LootParameterSets.ENTITY).build()));
+        blockLootTables.forEach((k, v)-> tables.put(k.getLootTable(), v.setParamSet(LootParameterSets.BLOCK).build()));
+        entityLootTables.forEach((k, v)-> tables.put(k.getDefaultLootTable(), v.setParamSet(LootParameterSets.ENTITY).build()));
 
         this.writeTables(cache, tables);
     }
@@ -60,7 +61,7 @@ public abstract class BaseLootTableProvider extends LootTableProvider {
         tables.forEach((key, lootTable) -> {
             Path path = outputFolder.resolve("data/" + key.getNamespace() + "/loot_tables/" + key.getPath() + ".json");
             try {
-                IDataProvider.save(GSON, cache, LootTableManager.toJson(lootTable), path);
+                IDataProvider.save(GSON, cache, LootTableManager.serialize(lootTable), path);
             } catch (IOException e) {
                 LOGGER.error("Couldn't write loot table {}", path, e);
             }
