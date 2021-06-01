@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -21,7 +21,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'snapshot', version: mcp_version
+    mappings channel: 'official', version: mc_version
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
@@ -81,13 +81,13 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.4'
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     //TestOnly
-    //runtimeOnly fg.deobf("curse.maven:ato-405593:3169334")
-    //runtimeOnly fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}")
-    //runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}")
-    //runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
+    runtimeOnly fg.deobf("curse.maven:ato-405593:3169334")
+    runtimeOnly fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}")
+    runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}")
+    runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
 
     compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
     compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}:api")
