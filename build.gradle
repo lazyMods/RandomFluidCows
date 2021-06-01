@@ -68,7 +68,7 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    //maven { url "https://www.cursemaven.com" }
+    maven { url "https://www.cursemaven.com" }
     maven { url "https://maven.tehnut.info" }
     maven {
         name 'tterrag maven'
