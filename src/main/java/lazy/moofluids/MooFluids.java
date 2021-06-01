@@ -25,6 +25,7 @@ public class MooFluids {
 
     public MooFluids() {
         Setup.init();
+        Configs.registerAndLoadConfig();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::interModEnqueue);
