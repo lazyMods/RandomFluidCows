@@ -1,15 +1,16 @@
 package lazy.moofluids.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import lazy.moofluids.client.model.MooFluidModel;
 import lazy.moofluids.entity.MooFluidEntity;
 import lazy.moofluids.utils.FluidColorFromTexture;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,13 +22,13 @@ public class MooFluidRenderer extends MobRenderer<MooFluidEntity, MooFluidModel<
 
     private static final ResourceLocation COW_TEXTURES = new ResourceLocation("textures/entity/cow/cow.png");
 
-    public MooFluidRenderer(EntityRendererManager renderManagerIn) {
-        super(renderManagerIn, new MooFluidModel<>(), 0.7F);
+    public MooFluidRenderer(EntityRendererProvider.Context context) {
+        super(context, new MooFluidModel<>(context.bakeLayer(MooFluidModel.LAYER)), 0.7F);
     }
 
     @Override
     @ParametersAreNonnullByDefault
-    public void render(MooFluidEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    public void render(MooFluidEntity entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         float[] rgba = this.convert(this.getColorFromFluid(entityIn.getFluid()));
         this.model.setTint(rgba[0], rgba[1], rgba[2], rgba[3]);
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);

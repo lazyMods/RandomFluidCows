@@ -2,27 +2,27 @@ package lazy.moofluids.inventory.container;
 
 import lazy.moofluids.Setup;
 import lazy.moofluids.tile.AutoMilkerTile;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.IntArray;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 import javax.annotation.Nonnull;
 
-public class AutoMilkerContainer extends Container {
+public class AutoMilkerContainer extends AbstractContainerMenu {
 
-    private final IIntArray data;
+    private final ContainerData data;
 
-    public AutoMilkerContainer(int id, PlayerInventory inventory, IItemHandler tileInv, IIntArray data) {
+    public AutoMilkerContainer(int id, Inventory inventory, IItemHandler tileInv, ContainerData data) {
         super(Setup.AUTO_MILKER_CONTAINER.get(), id);
 
         this.data = data;
@@ -69,12 +69,12 @@ public class AutoMilkerContainer extends Container {
         return this.data.get(3);
     }
 
-    public AutoMilkerContainer(int id, PlayerInventory inventory) {
-        this(id, inventory, new ItemStackHandler(AutoMilkerTile.INV_SIZE), new IntArray(AutoMilkerTile.DATA_SIZE));
+    public AutoMilkerContainer(int id, Inventory inventory) {
+        this(id, inventory, new ItemStackHandler(AutoMilkerTile.INV_SIZE), new SimpleContainerData(AutoMilkerTile.DATA_SIZE));
     }
 
     @Override
-    public boolean stillValid(@Nonnull PlayerEntity playerIn) {
+    public boolean stillValid(@Nonnull Player playerIn) {
         return true;
     }
 }

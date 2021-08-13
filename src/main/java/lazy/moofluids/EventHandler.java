@@ -1,10 +1,11 @@
 package lazy.moofluids;
 
 import lazy.moofluids.entity.MooFluidEntity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -18,14 +19,14 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void onBiomeLoading(BiomeLoadingEvent event) {
-        if(event.getCategory() == Biome.Category.NETHER
-                || event.getCategory() == Biome.Category.OCEAN
-                || event.getCategory() == Biome.Category.BEACH
-                || event.getCategory() == Biome.Category.DESERT
-                || event.getCategory() == Biome.Category.RIVER
-                || event.getCategory() == Biome.Category.THEEND) return;
-        List<MobSpawnInfo.Spawners> spawners = event.getSpawns().getSpawner(EntityClassification.CREATURE);
-        spawners.add(new MobSpawnInfo.Spawners(Setup.MOO_FLUID.get(), Configs.SPAWN_WEIGHT.get(), Configs.SPAWN_MIN_COUNT.get(), Configs.SPAWN_MAX_COUNT.get()));
+        if(event.getCategory() == Biome.BiomeCategory.NETHER
+                || event.getCategory() == Biome.BiomeCategory.OCEAN
+                || event.getCategory() == Biome.BiomeCategory.BEACH
+                || event.getCategory() == Biome.BiomeCategory.DESERT
+                || event.getCategory() == Biome.BiomeCategory.RIVER
+                || event.getCategory() == Biome.BiomeCategory.THEEND) return;
+        List<MobSpawnSettings.SpawnerData> spawners = event.getSpawns().getSpawner(MobCategory.CREATURE);
+        spawners.add(new MobSpawnSettings.SpawnerData(Setup.MOO_FLUID.get(), Configs.SPAWN_WEIGHT.get(), Configs.SPAWN_MIN_COUNT.get(), Configs.SPAWN_MAX_COUNT.get()));
     }
 
     @SubscribeEvent

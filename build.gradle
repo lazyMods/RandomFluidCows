@@ -5,19 +5,20 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 version = "${mc_version}-${mod_version}"
 group = 'lazy' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'moofluids'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -68,11 +69,16 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    maven { url "https://www.cursemaven.com" }
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
     maven { url "https://maven.tehnut.info" }
     maven {
         name 'tterrag maven'
-        url "http://maven.tterrag.com/"
+        url "https://maven.tterrag.com/"
     }
     maven {
         name = "Progwml6 maven"
@@ -83,15 +89,18 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
+
+    implementation fg.deobf("curse.maven:jade-324717:3423220")
+    implementation fg.deobf("curse.maven:the-one-probe-245211:3418788")
+    //implementation fg.deobf("curse.maven:ato-405593:3404409")
     //TestOnly
-    runtimeOnly fg.deobf("curse.maven:ato-405593:3169334")
-    runtimeOnly fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}")
+    /*
     runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}")
     runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
 
     compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
     compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}:api")
-    compileOnly fg.deobf("mcp.mobius.waila:Hwyla:${hwyla_version}:api")
+    */
 }
 
 jar {

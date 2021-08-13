@@ -5,26 +5,25 @@ import lazy.moofluids.Setup;
 import lazy.moofluids.entity.MooFluidEntity;
 import lazy.moofluids.inventory.container.AutoMilkerContainer;
 import lazy.moofluids.utils.FluidColorFromTexture;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -40,7 +39,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider {
+public class AutoMilkerTile extends BlockEntity implements MenuProvider {
 
     public static final String TAG_TIME = "CurrentTime";
     private int timer;
@@ -61,7 +60,7 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
     private Direction facing;
 
     public static final int DATA_SIZE = 4;
-    public IIntArray data = new IIntArray() {
+    public ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             switch (index) {
@@ -73,7 +72,7 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
                     return isEmpty();
                 case 3:
                     int color = storage.getFluid().getFluid().getAttributes().getColor();
-                    if(color == -1 && FluidColorFromTexture.COLORS.containsKey(storage.getFluid().getFluid()))
+                    if (color == -1 && FluidColorFromTexture.COLORS.containsKey(storage.getFluid().getFluid()))
                         color = FluidColorFromTexture.COLORS.get(storage.getFluid().getFluid());
                     return color;
                 default:
@@ -91,22 +90,21 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
         }
     };
 
-    public AutoMilkerTile() {
-        super(Setup.AUTO_MILKER_TYPE.get());
+    public AutoMilkerTile(BlockPos pos, BlockState state) {
+        super(Setup.AUTO_MILKER_TYPE.get(), pos, state);
     }
 
-    @Override
-    public void tick() {
+    public void tick(Level level, BlockPos pos, BlockState state, AutoMilkerTile tile) {
         Preconditions.checkNotNull(this.level);
-        if(!this.level.isClientSide) {
-            this.setFacing();
-            if(!this.getMooFluidInSpace(this.level).isEmpty()) {
+        if (!level.isClientSide) {
+            this.setFacing(state);
+            if (!this.getMooFluidInSpace(level, pos).isEmpty()) {
                 this.increaseTimer();
-                if(this.finished()) {
-                    for (MooFluidEntity mooFluid : this.getMooFluidInSpace(this.level)) {
+                if (this.finished()) {
+                    for (MooFluidEntity mooFluid : this.getMooFluidInSpace(level, pos)) {
                         int remainder = this.storage.fill(mooFluid.getFluidStack(), FluidAction.SIMULATE);
-                        if(remainder != 0 && mooFluid.canBeMilked()) {
-                            this.level.playSound(null, this.worldPosition, SoundEvents.COW_MILK, SoundCategory.AMBIENT, 1f, 1f);
+                        if (remainder != 0 && mooFluid.canBeMilked()) {
+                            level.playSound(null, pos, SoundEvents.COW_MILK, SoundSource.AMBIENT, 1f, 1f);
                             mooFluid.setCanBeMilked(false);
                             mooFluid.setDelay(1000);
                             this.storage.fill(mooFluid.getFluidStack(), FluidAction.EXECUTE);
@@ -118,8 +116,8 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
 
             boolean hasEmptyBucket = this.tileInv.getStackInSlot(0).getItem() == Items.BUCKET;
             boolean outputIsEmpty = this.tileInv.getStackInSlot(1).isEmpty();
-            if(hasEmptyBucket && outputIsEmpty) {
-                if(!this.storage.isEmpty()) {
+            if (hasEmptyBucket && outputIsEmpty) {
+                if (!this.storage.isEmpty()) {
                     this.tileInv.extractItem(0, 1, false);
                     this.tileInv.insertItem(1, FluidUtil.getFilledBucket(this.storage.getFluid()), false);
                     this.storage.drain(FluidAttributes.BUCKET_VOLUME, FluidAction.EXECUTE);
@@ -128,13 +126,13 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
         }
     }
 
-    public List<MooFluidEntity> getMooFluidInSpace(@Nonnull World level) {
-        return level.getEntitiesOfClass(MooFluidEntity.class, new AxisAlignedBB(this.getFacingPos()));
+    public List<MooFluidEntity> getMooFluidInSpace(@Nonnull Level level, BlockPos pos) {
+        return level.getEntitiesOfClass(MooFluidEntity.class, new AABB(this.getFacingPos(pos)));
     }
 
-    private void setFacing() {
-        if(this.facing == null && this.getBlockState().hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            this.facing = this.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+    private void setFacing(BlockState state) {
+        if (this.facing == null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            this.facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
         }
     }
 
@@ -142,14 +140,13 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
         return this.storage.isEmpty() ? 1 : 0;
     }
 
-    private BlockPos getFacingPos() {
-        return this.worldPosition.offset(this.facing.getNormal());
+    private BlockPos getFacingPos(BlockPos pos) {
+        return pos.offset(this.facing.getNormal());
     }
 
     private void increaseTimer() {
         this.timer++;
         this.setChanged();
-
     }
 
     private void resetTimer() {
@@ -175,8 +172,8 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
 
     @Override
     @ParametersAreNonnullByDefault
-    public void load(BlockState state, CompoundNBT nbt) {
-        super.load(state, nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
         this.timer = nbt.getInt(TAG_TIME);
         this.storage.readFromNBT(nbt);
         this.tileInv.deserializeNBT(nbt.getCompound(TAG_INV));
@@ -185,8 +182,8 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
     @Override
     @Nonnull
     @ParametersAreNonnullByDefault
-    public CompoundNBT save(CompoundNBT compound) {
-        CompoundNBT nbt = super.save(compound);
+    public CompoundTag save(CompoundTag compound) {
+        CompoundTag nbt = super.save(compound);
         nbt.putInt(TAG_TIME, this.timer);
         this.storage.writeToNBT(compound);
         nbt.put(TAG_INV, this.tileInv.serializeNBT());
@@ -196,28 +193,28 @@ public class AutoMilkerTile extends TileEntity implements ITickableTileEntity, I
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(!this.isRemoved() && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && side != this.facing) {
+        if (!this.isRemoved() && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && side != this.facing) {
             return this.fluidCap.cast();
         }
         return super.getCapability(cap, side);
     }
 
     @Override
-    protected void invalidateCaps() {
+    public void invalidateCaps() {
         super.invalidateCaps();
         this.fluidCap.invalidate();
     }
 
     @Override
     @Nonnull
-    public ITextComponent getDisplayName() {
-        return new StringTextComponent("Auto Milker");
+    public Component getDisplayName() {
+        return new TextComponent("Auto Milker");
     }
 
     @Nullable
     @Override
     @ParametersAreNonnullByDefault
-    public Container createMenu(int windowId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+    public AbstractContainerMenu createMenu(int windowId, Inventory playerInventory, Player playerEntity) {
         return new AutoMilkerContainer(windowId, playerInventory, this.tileInv, this.data);
     }
 }
