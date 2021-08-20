@@ -97,6 +97,7 @@ public class MooFluidEntity extends CowEntity {
                     if(hand == Hand.MAIN_HAND) {
                         if(player.getItemInHand(hand).getItem() == Items.BUCKET) {
                             ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(this.getFluid(), 1000));
+                            if(stack.isEmpty()) return ActionResultType.SUCCESS;
                             if(player.getItemInHand(hand).getCount() > 1) {
                                 int slotID = player.inventory.getFreeSlot();
                                 if(slotID != -1) {
