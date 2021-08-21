@@ -14,6 +14,7 @@ public class Configs {
     public static ForgeConfigSpec.IntValue SPAWN_WEIGHT;
     public static ForgeConfigSpec.IntValue SPAWN_MIN_COUNT;
     public static ForgeConfigSpec.IntValue SPAWN_MAX_COUNT;
+    public static ForgeConfigSpec.BooleanValue GENERATED_CUSTOM_BUCKETS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -22,6 +23,7 @@ public class Configs {
         SPAWN_WEIGHT = builder.comment("Spawn Weight - Change of spawning.").defineInRange("spawn_weight", 2, 1, Integer.MAX_VALUE);
         SPAWN_MIN_COUNT = builder.comment("Spawn Min Count - The lowest number of cows that should spawn.").defineInRange("spawn_min_count", 1, 1, Integer.MAX_VALUE);
         SPAWN_MAX_COUNT = builder.comment("Spawn Max Count - The max number of cows that should spawn.").defineInRange("spawn_max_count", 1, 1, Integer.MAX_VALUE);
+        GENERATED_CUSTOM_BUCKETS = builder.comment("Generates bucket for fluids that don't have one. This may cause issues, if so disable this option.").define("custom_buckets", true);
         builder.pop();
 
         COMMON = builder.build();
