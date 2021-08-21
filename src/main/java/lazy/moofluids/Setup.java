@@ -1,8 +1,10 @@
 package lazy.moofluids;
 
+import com.google.common.collect.Lists;
 import lazy.moofluids.block.AutoMilkerBlock;
 import lazy.moofluids.entity.MooFluidEntity;
 import lazy.moofluids.inventory.container.AutoMilkerContainer;
+import lazy.moofluids.item.UniversalBucketItem;
 import lazy.moofluids.tile.AutoMilkerTile;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityClassification;
@@ -35,6 +37,8 @@ public class Setup {
 
     public static final RegistryObject<Item> AUTO_MILKER_ITEM = ITEMS.register("auto_milker",
             () -> new BlockItem(AUTO_MILKER.get(), new Item.Properties().tab(ItemGroup.TAB_MISC)));
+
+    public static final RegistryObject<Item> UNIVERSAL_BUCKET = ITEMS.register("universal_bucket", () -> new UniversalBucketItem(Lists.newArrayList()));
 
     @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<TileEntityType<AutoMilkerTile>> AUTO_MILKER_TYPE = TILES.register("auto_milker",
