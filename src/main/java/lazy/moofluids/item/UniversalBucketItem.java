@@ -1,13 +1,12 @@
 package lazy.moofluids.item;
 
-import com.google.common.collect.Lists;
-import lazy.moofluids.utils.MooFluidReg;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IBucketPickupHandler;
 import net.minecraft.block.ILiquidContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FlowingFluid;
@@ -29,6 +28,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,21 +37,22 @@ import java.util.Objects;
 
 public class UniversalBucketItem extends Item {
 
-    private List<Fluid> fluids = Lists.newArrayList();
+    public static final String TAG_REGISTRY_NAME = "registryName";
+    private List<Fluid> fluids;
 
     public UniversalBucketItem(List<Fluid> fluids) {
-        super(new Item.Properties().tab(ItemGroup.TAB_TOOLS));
+        super(new Item.Properties().tab(ItemGroup.TAB_TOOLS).stacksTo(16));
+        this.fluids = fluids;
     }
 
     @Override
     public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
-        super.fillItemCategory(group, items);
         if (group != this.getItemCategory()) return;
         for (Fluid fluid : this.fluids) {
             ItemStack stack = new ItemStack(this);
             stack.setTag(new CompoundNBT());
             if (stack.getTag() != null)
-                stack.getTag().putString("registryName", Objects.requireNonNull(fluid.getRegistryName()).toString());
+                stack.getTag().putString(TAG_REGISTRY_NAME, Objects.requireNonNull(fluid.getRegistryName()).toString());
             items.add(stack);
         }
     }
@@ -60,17 +61,18 @@ public class UniversalBucketItem extends Item {
     @Nonnull
     public ITextComponent getName(ItemStack stack) {
         StringTextComponent textComponent = new StringTextComponent("");
-        if (stack.getTag() != null) {
-            textComponent.append(stack.getOrCreateTag().getString("registryName"));
+        if (stack.getTag() != null && stack.getTag().contains(TAG_REGISTRY_NAME)) {
+            textComponent.append("Universal Bucket of ");
+            String renameName = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(stack.getOrCreateTag().getString(TAG_REGISTRY_NAME))).getName().getString();
+            textComponent.append(renameName);
         }
         return textComponent.getString().equals("") ? super.getName(stack) : textComponent;
     }
 
-
     @Override
     public ActionResult<ItemStack> use(World world, PlayerEntity playerEntity, Hand hand) {
         ItemStack itemstack = playerEntity.getItemInHand(hand);
-        String fluidRegName = itemstack.getOrCreateTag().getString("registryName");
+        String fluidRegName = itemstack.getOrCreateTag().getString(TAG_REGISTRY_NAME);
         Fluid content = fluidRegName.isEmpty() ? Fluids.EMPTY : this.get(fluidRegName);
         RayTraceResult raytraceresult = getPlayerPOVHitResult(world, playerEntity, content == Fluids.EMPTY ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE);
         ActionResult<ItemStack> ret = net.minecraftforge.event.ForgeEventFactory.onBucketUse(playerEntity, world, itemstack, raytraceresult);
@@ -129,7 +131,7 @@ public class UniversalBucketItem extends Item {
 
     protected ItemStack getEmptySuccessItem(ItemStack stack, PlayerEntity playerEntity) {
         ItemStack empty = new ItemStack(this);
-        empty.getOrCreateTag().putString("registryName", "minecraft:empty");
+        empty.getOrCreateTag().putString(TAG_REGISTRY_NAME, "minecraft:empty");
         return !playerEntity.abilities.instabuild ? empty : stack;
     }
 
@@ -197,9 +199,7 @@ public class UniversalBucketItem extends Item {
     }
 
     public void setFluids(List<Fluid> fluids) {
-        System.out.println("fluids waas " + this.fluids);
         this.fluids = fluids;
-        System.out.println("fluids is " + fluids);
     }
 
     public Fluid get(String registryName) {
@@ -207,6 +207,6 @@ public class UniversalBucketItem extends Item {
     }
 
     public Fluid getFluid(ItemStack stack) {
-        return stack.getOrCreateTag().getString("registryName").isEmpty() ? Fluids.EMPTY : get(stack.getOrCreateTag().getString("registryName"));
+        return stack.getOrCreateTag().getString(TAG_REGISTRY_NAME).isEmpty() ? Fluids.EMPTY : get(stack.getOrCreateTag().getString(TAG_REGISTRY_NAME));
     }
 }
