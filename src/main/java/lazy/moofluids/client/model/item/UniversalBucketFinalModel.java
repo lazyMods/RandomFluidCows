@@ -43,7 +43,7 @@ public class UniversalBucketFinalModel implements IBakedModel {
     public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
         TextureAtlasSprite bucket = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(new ResourceLocation("minecraft:item/bucket"));
         TextureAtlasSprite fluidMask = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(new ResourceLocation("moofluids:item/bucket_fluid_drip"));
-        TextureAtlasSprite fluidSprite = fluid != Fluids.EMPTY ? ForgeHooksClient.getBlockMaterial(fluid.getAttributes().getStillTexture()).sprite() : null;
+        TextureAtlasSprite fluidSprite = (fluid != null && fluid != Fluids.EMPTY) ? ForgeHooksClient.getBlockMaterial(fluid.getAttributes().getStillTexture()).sprite() : null;
 
         if (side != null) return this.givenModel.getQuads(state, side, rand);
 
