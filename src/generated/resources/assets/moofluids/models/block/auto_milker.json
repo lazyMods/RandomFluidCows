@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": {
-    "side": "moofluids:blocks/auto_milker",
-    "front": "moofluids:blocks/auto_milker_front",
-    "top": "moofluids:blocks/auto_milker"
-  }
-}
