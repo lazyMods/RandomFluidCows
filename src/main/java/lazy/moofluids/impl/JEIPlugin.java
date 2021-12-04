@@ -1,36 +1,9 @@
 package lazy.moofluids.impl;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import lazy.moofluids.MooFluids;
-import lazy.moofluids.utils.MooFluidReg;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
-import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
-import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredients;
-import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fluids.FluidStack;
+//@JeiPlugin
+public class JEIPlugin /*implements IModPlugin*/ {
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@JeiPlugin
-public class JEIPlugin implements IModPlugin {
-
-    @Override
+    /*@Override
     @Nonnull
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(MooFluids.MOD_ID, "jei_plugin");
@@ -118,5 +91,5 @@ public class JEIPlugin implements IModPlugin {
             guiItemStacks.init(1, false, 69, 0);
             guiItemStacks.set(iIngredients);
         }
-    }
+    }*/
 }

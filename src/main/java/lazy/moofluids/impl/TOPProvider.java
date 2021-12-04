@@ -1,23 +1,8 @@
 package lazy.moofluids.impl;
 
-import lazy.moofluids.MooFluids;
-import lazy.moofluids.entity.MooFluidEntity;
-import lazy.moofluids.tile.AutoMilkerTile;
-import mcjty.theoneprobe.api.*;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.InterModComms;
-
-import java.util.function.Function;
-
 public class TOPProvider {
 
-    private static boolean done;
+    /*private static boolean done;
 
     public static void register() {
         if (done) return;
@@ -71,5 +56,5 @@ public class TOPProvider {
                 }
             }
         }
-    }
+    }*/
 }

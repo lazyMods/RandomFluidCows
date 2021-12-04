@@ -1,25 +1,23 @@
 package lazy.moofluids.client.model.item;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
-public class UniversalBucketModel implements IBakedModel {
+public class UniversalBucketModel implements BakedModel {
 
-    private final IBakedModel givenModel;
+    private final BakedModel givenModel;
     private final UniversalBucketOverrides universalBucketOverrides;
 
-    public UniversalBucketModel(IBakedModel givenModel) {
+    public UniversalBucketModel(BakedModel givenModel) {
         this.givenModel = givenModel;
         this.universalBucketOverrides = new UniversalBucketOverrides();
     }
@@ -36,11 +34,11 @@ public class UniversalBucketModel implements IBakedModel {
         throw new AssertionError("OH NO  OH NO OH NO NONONONONOO");
     }
 
-    @Nonnull
+    /*@Nonnull
     @Override
     public IModelData getModelData(@Nonnull IBlockDisplayReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
         throw new AssertionError("OH NO  OH NO OH NO NONONONONOO");
-    }
+    }*/
 
     @Override
     public boolean useAmbientOcclusion() {
@@ -69,7 +67,7 @@ public class UniversalBucketModel implements IBakedModel {
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return this.universalBucketOverrides;
     }
 }

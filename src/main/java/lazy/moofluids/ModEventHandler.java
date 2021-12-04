@@ -1,17 +1,19 @@
 package lazy.moofluids;
 
+import lazy.moofluids.client.model.MooFluidModel;
 import lazy.moofluids.client.model.item.UniversalBucketModel;
-import lazy.moofluids.item.UniversalBucketItem;
+import lazy.moofluids.client.render.MooFluidRenderer;
+import lazy.moofluids.entity.MooFluidEntity;
 import lazy.moofluids.utils.FluidColorFromTexture;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.DynamicBucketModel;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -23,7 +25,7 @@ public class ModEventHandler {
     @SuppressWarnings("deprecation")
     @SubscribeEvent
     public static void onTextureStitching(TextureStitchEvent.Pre e) {
-        if (!e.getMap().location().equals(AtlasTexture.LOCATION_BLOCKS)) return;
+        if (!e.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS)) return;
         e.addSprite(new ResourceLocation(MooFluids.MOD_ID, "item/bucket_fluid_drip"));
     }
 
@@ -38,8 +40,23 @@ public class ModEventHandler {
 
     @SubscribeEvent
     public static void onModelBakeEvent(ModelBakeEvent event) {
-        IBakedModel iBakedModel = event.getModelRegistry().get(INVENTORY_MODEL);
+        BakedModel iBakedModel = event.getModelRegistry().get(INVENTORY_MODEL);
         UniversalBucketModel dynamicBucketModel = new UniversalBucketModel(iBakedModel);
         event.getModelRegistry().put(INVENTORY_MODEL, dynamicBucketModel);
+    }
+
+    @SubscribeEvent
+    public static void onEntityAttributeRegister(EntityAttributeCreationEvent event) {
+        event.put(Setup.MOO_FLUID.get(), MooFluidEntity.createAttr());
+    }
+
+    @SubscribeEvent
+    public static void onEntityRenderingRegisterEvent(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(Setup.MOO_FLUID.get(), MooFluidRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void onEntityLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(MooFluidModel.LAYER, MooFluidModel::createBodyLayer);
     }
 }
