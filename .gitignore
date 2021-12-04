@@ -24,3 +24,7 @@ logs
 
 # Files from Forge MDK
 forge*changelog.txt
+
+runClient
+runData
+runServer
