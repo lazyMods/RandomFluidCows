@@ -1,12 +1,14 @@
 package lazy.moofluids;
 
 import com.google.common.collect.Lists;
+import lazy.moofluids.impl.TOPProvider;
 import lazy.moofluids.item.UniversalBucketItem;
 import lazy.moofluids.utils.MooFluidReg;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
@@ -55,7 +57,7 @@ public class MooFluids {
 
     @SubscribeEvent
     public void interModEnqueue(InterModEnqueueEvent event) {
-        //if (ModList.get().isLoaded("theoneprobe"))
-        //TOPProvider.register();
+        if (ModList.get().isLoaded("theoneprobe"))
+            TOPProvider.register();
     }
 }
