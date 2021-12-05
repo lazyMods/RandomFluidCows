@@ -6,17 +6,20 @@ apply from: 'https://noeppi-noeppi.github.io/ModUtils/v3/mod.gradle'
 
 repositories {
     maven { url "https://cursemaven.com/" }
+    maven {
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
 }
 
 dependencies {
-
-    //TestOnly
     //runtimeOnly fg.deobf("curse.maven:ato-405593:3169334")
-    //runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}")
-    //runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
 
-    //compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
+    //runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}")
     //compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${top_version}:api")
-    //implementation fg.deobf("curse.maven:jade-324717:3544058")
+
+    compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
+
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
 }

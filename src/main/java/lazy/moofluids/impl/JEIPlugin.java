@@ -1,9 +1,37 @@
 package lazy.moofluids.impl;
 
-//@JeiPlugin
-public class JEIPlugin /*implements IModPlugin*/ {
+import com.mojang.blaze3d.vertex.PoseStack;
+import lazy.moofluids.MooFluids;
+import lazy.moofluids.utils.MooFluidReg;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
+import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.registration.IRecipeCategoryRegistration;
+import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 
-    /*@Override
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@JeiPlugin
+public class JEIPlugin implements IModPlugin {
+
+    @Override
     @Nonnull
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(MooFluids.MOD_ID, "jei_plugin");
@@ -33,14 +61,14 @@ public class JEIPlugin /*implements IModPlugin*/ {
         }
 
         @Override
-        public void draw(Fluid fluid, @Nonnull MatrixStack matrixStack, double mouseX, double mouseY) {
-            FontRenderer fr = Minecraft.getInstance().font;
-            FluidStack stack = new FluidStack(fluid.getFluid(), 1);
+        public void draw(Fluid fluid, @Nonnull PoseStack matrixStack, double mouseX, double mouseY) {
+            Font fr = Minecraft.getInstance().font;
+            FluidStack stack = new FluidStack(fluid, 1);
             String stackName = stack.getDisplayName().getString();
-            if(stackName.contains(".")) stackName = stackName.split("\\.")[2];
-            StringTextComponent toDisplay = new StringTextComponent("MooFluid with " + stackName);
+            if (stackName.contains(".")) stackName = stackName.split("\\.")[2];
+            TextComponent toDisplay = new TextComponent("MooFluid with " + stackName);
             int y = 22;
-            for (IReorderingProcessor rp : fr.split(toDisplay, 87)) {
+            for (FormattedCharSequence rp : fr.split(toDisplay, 87)) {
                 fr.drawInternal(rp, 0, y, 0, matrixStack.last().pose(), false);
                 y += 9;
             }
@@ -61,8 +89,8 @@ public class JEIPlugin /*implements IModPlugin*/ {
 
         @Override
         @Nonnull
-        public String getTitle() {
-            return "Moo Fluids";
+        public Component getTitle() {
+            return new TextComponent("Moo Fluids");
         }
 
         @Override
@@ -91,5 +119,5 @@ public class JEIPlugin /*implements IModPlugin*/ {
             guiItemStacks.init(1, false, 69, 0);
             guiItemStacks.set(iIngredients);
         }
-    }*/
+    }
 }
