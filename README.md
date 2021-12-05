@@ -4,4 +4,4 @@
 
  [Minecraft Forge Mod] Cows that spawn with random fluids.
 
-**Version:** 1.0.1.1
+**Version:** 1.2.0.0
