@@ -3,7 +3,7 @@ package lazy.moofluids.impl;
 import lazy.moofluids.MooFluids;
 import lazy.moofluids.entity.MooFluidEntity;
 import mcjty.theoneprobe.api.*;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -43,9 +43,9 @@ public class TOPProvider {
         public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, Player playerEntity, Level world, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
             if (entity instanceof MooFluidEntity mooFluidEntity) {
                 String fluidName = mooFluidEntity.getFluid() == Fluids.EMPTY || mooFluidEntity.getFluid() == null ? "Empty" : new FluidStack(mooFluidEntity.getFluid(), 1000).getDisplayName().getString();
-                iProbeInfo.text(new TextComponent("Fluid: " + fluidName));
+                iProbeInfo.text(Component.literal("Fluid: " + fluidName));
                 String display = mooFluidEntity.canBeMilked() ? "Can be milked!" : "Delay: " + mooFluidEntity.getDelay();
-                iProbeInfo.text(new TextComponent(display));
+                iProbeInfo.text(Component.literal(display));
             }
         }
     }

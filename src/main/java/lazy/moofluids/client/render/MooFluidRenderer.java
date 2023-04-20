@@ -5,14 +5,14 @@ import lazy.moofluids.client.model.MooFluidModel;
 import lazy.moofluids.entity.MooFluidEntity;
 import lazy.moofluids.utils.FluidColorFromTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -44,8 +44,9 @@ public class MooFluidRenderer extends MobRenderer<MooFluidEntity, MooFluidModel<
     }
 
     private int getColorFromFluid(Fluid fluid) {
-        if(fluid == null || fluid == Fluids.EMPTY) return 0xFFFFFFFF;
-        if(fluid.getAttributes().getColor() != -1) return fluid.getAttributes().getColor();
+        if (fluid == null || fluid == Fluids.EMPTY) return 0xFFFFFFFF;
+        if (((IClientFluidTypeExtensions) fluid.getFluidType().getRenderPropertiesInternal()).getTintColor() != -1)
+            return ((IClientFluidTypeExtensions) fluid.getFluidType().getRenderPropertiesInternal()).getTintColor();
         return FluidColorFromTexture.COLORS.get(fluid);
     }
 

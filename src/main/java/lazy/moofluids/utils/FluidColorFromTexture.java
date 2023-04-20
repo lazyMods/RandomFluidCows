@@ -6,6 +6,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.imageio.ImageIO;
@@ -22,23 +23,19 @@ public class FluidColorFromTexture {
 
     public static void populate() {
         for (Fluid fluid : MooFluidReg.getFluids()) {
-            if (fluid.getAttributes().getColor() == -1) {
-                ResourceLocation res = fluid.getAttributes().getStillTexture();
+            if (((IClientFluidTypeExtensions) fluid.getFluidType().getRenderPropertiesInternal()).getTintColor() == -1) {
+                ResourceLocation res = ((IClientFluidTypeExtensions) fluid.getFluidType().getRenderPropertiesInternal()).getStillTexture();
                 ResourceLocation full = new ResourceLocation(res.getNamespace(), "textures/" + res.getPath() + ".png");
                 try {
-                    InputStream inputStream = Minecraft.getInstance().getResourceManager().getResource(full).getInputStream();
-                    BufferedImage image = ImageIO.read(inputStream);
-                    COLORS.put(fluid, ImageDominantColor.getColor(image, false));
+                    var inputStream = Minecraft.getInstance().getResourceManager().getResource(full);
+                    if (inputStream.isPresent()) {
+                        BufferedImage image = ImageIO.read(inputStream.get().open());
+                        COLORS.put(fluid, ImageDominantColor.getColor(image, false));
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-    }
-
-    public static Fluid getFluidFromColor(int color) {
-        if (COLORS.containsValue(color))
-            return COLORS.keySet().stream().filter(k -> COLORS.get(k) == color).findFirst().orElse(Fluids.EMPTY);
-        return ForgeRegistries.FLUIDS.getValues().stream().filter(f -> f.getAttributes().getColor() == color).findFirst().orElse(Fluids.EMPTY);
     }
 }

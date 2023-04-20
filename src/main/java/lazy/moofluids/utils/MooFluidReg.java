@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class MooFluidReg {
     }
 
     public static Fluid get(String registryName) {
-        return FLUIDS.stream().filter(fluid -> Objects.requireNonNull(fluid.getRegistryName()).toString().equals(registryName)).findFirst().orElse(null);
+        return FLUIDS.stream().filter(fluid -> ForgeRegistries.FLUIDS.getKey(fluid).toString().equals(registryName)).findFirst().orElse(null);
     }
 
     public static ImmutableList<Fluid> getFluids() {

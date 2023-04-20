@@ -5,7 +5,12 @@ buildscript {
 apply from: 'https://moddingx.github.io/ModUtils/v4/mod.gradle'
 
 repositories {
-    maven { url "https://cursemaven.com/" }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
     maven {
         name = "Progwml6 maven"
         url = "https://dvs1.progwml6.com/files/maven/"
@@ -13,11 +18,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
-
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
+    runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
     implementation fg.deobf("curse.maven:the-one-probe-245211:${top_version}")
-    runtimeOnly fg.deobf("curse.maven:tinkers-construct-74072:${tic_version}")
-    runtimeOnly fg.deobf("curse.maven:mantle-74924:${mantle_version}")
 }

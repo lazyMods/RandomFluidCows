@@ -1,0 +1,11 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#moofluids:allowed",
+  "spawners":
+  {
+    "type": "moofluids:moo_fluid",
+    "weight": 2,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

@@ -1,14 +1,14 @@
 package lazy.moofluids.entity;
 
-import lazy.moofluids.Setup;
-import lazy.moofluids.item.UniversalBucketItem;
 import lazy.moofluids.utils.MooFluidReg;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,18 +23,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Objects;
-import java.util.Random;
 
 public class MooFluidEntity extends Cow {
 
@@ -60,7 +60,7 @@ public class MooFluidEntity extends Cow {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(FLUID_NAME, Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString());
+        this.entityData.define(FLUID_NAME, ForgeRegistries.FLUIDS.getKey(Fluids.EMPTY).toString());
         this.entityData.define(DELAY, 1000);
         this.entityData.define(CAN_BE_MILKED, true);
     }
@@ -69,7 +69,7 @@ public class MooFluidEntity extends Cow {
     @ParametersAreNonnullByDefault
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
         if (!worldIn.isClientSide()) {
-            this.setFluid(Objects.requireNonNull(this.getRandomFluid().getRegistryName()).toString());
+            this.setFluid(ForgeRegistries.FLUIDS.getKey(this.getRandomFluid()).toString());
             if (this.getDelay() < 0) {
                 this.entityData.set(CAN_BE_MILKED, true);
             }
@@ -99,16 +99,18 @@ public class MooFluidEntity extends Cow {
                     if (hand == InteractionHand.MAIN_HAND) {
                         if (player.getItemInHand(hand).getItem() == Items.BUCKET) {
                             ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(this.getFluid(), 1000));
-                            if (stack.isEmpty()) {
-                                ItemStack universalBucket = new ItemStack(Setup.UNIVERSAL_BUCKET.get());
-                                universalBucket.getOrCreateTag().putString(UniversalBucketItem.TAG_REGISTRY_NAME, this.getFluid().getRegistryName().toString());
-                                stack = universalBucket.copy();
-                            }
-                            if (player.getItemInHand(hand).getCount() > 1) {
+                            //TODO: Implement custom buckets
+//                            if (stack.isEmpty()) {
+//                                ItemStack universalBucket = new ItemStack(Setup.UNIVERSAL_BUCKET.get());
+//                                universalBucket.getOrCreateTag().putString(UniversalBucketItem.TAG_REGISTRY_NAME, ForgeRegistries.FLUIDS.getKey(this.getFluid()).toString());
+//                                stack = universalBucket.copy();
+//                            }
+                            if (player.getItemInHand(hand).getCount() > 1 || player.isCreative()) {
                                 int slotID = player.getInventory().getFreeSlot();
                                 if (slotID != -1) {
                                     player.getInventory().items.set(slotID, stack);
-                                    player.getItemInHand(hand).shrink(1);
+                                    if (!player.isCreative())
+                                        player.getItemInHand(hand).shrink(1);
                                     this.setCanBeMilked(false);
                                 }
                             } else {
@@ -150,14 +152,14 @@ public class MooFluidEntity extends Cow {
     }
 
     public Fluid getFluid() {
-        if (this.entityData.get(FLUID_NAME).equals(Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString()))
+        if (this.entityData.get(FLUID_NAME).equals(ForgeRegistries.FLUIDS.getKey(Fluids.EMPTY).toString()))
             return Fluids.EMPTY;
 
         return MooFluidReg.get(this.entityData.get(FLUID_NAME));
     }
 
     public FluidStack getFluidStack() {
-        return new FluidStack(this.getFluid(), FluidAttributes.BUCKET_VOLUME);
+        return new FluidStack(this.getFluid(), FluidType.BUCKET_VOLUME);
     }
 
     public int getDelay() {
@@ -173,7 +175,7 @@ public class MooFluidEntity extends Cow {
     }
 
     public Fluid getRandomFluid() {
-        Random rnd = new Random();
+        var rnd = RandomSource.create();
         int rndVal = Mth.nextInt(rnd, 0, MooFluidReg.getFluids().size() - 1);
         return MooFluidReg.getFluids().get(rndVal);
     }
@@ -182,10 +184,10 @@ public class MooFluidEntity extends Cow {
     public void addAdditionalSaveData(@Nonnull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt(TAG_DELAY, this.getDelay());
-        if (this.getFluid().getRegistryName() == null) {
-            compound.putString(TAG_FLUID, Objects.requireNonNull(Fluids.EMPTY.getRegistryName()).toString());
+        if (ForgeRegistries.FLUIDS.getKey(this.getFluid()) == null) {
+            compound.putString(TAG_FLUID, ForgeRegistries.FLUIDS.getKey(Fluids.EMPTY).toString());
         } else {
-            compound.putString(TAG_FLUID, Objects.requireNonNull(this.getFluid().getRegistryName()).toString());
+            compound.putString(TAG_FLUID, ForgeRegistries.FLUIDS.getKey(this.getFluid()).toString());
         }
     }
 
@@ -194,5 +196,9 @@ public class MooFluidEntity extends Cow {
         super.readAdditionalSaveData(compound);
         this.setFluid(compound.getString(TAG_FLUID));
         this.setDelay(compound.getInt(TAG_DELAY));
+    }
+
+    public static boolean canSpawn(EntityType<MooFluidEntity> entityType, LevelAccessor levelAccessor, MobSpawnType mobSpawnType, BlockPos pos, RandomSource source) {
+        return checkAnimalSpawnRules(entityType, levelAccessor, mobSpawnType, pos, source);
     }
 }

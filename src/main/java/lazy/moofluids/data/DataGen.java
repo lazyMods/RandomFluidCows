@@ -16,9 +16,9 @@ import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = MooFluids.MOD_ID)
 public class DataGen {
@@ -26,7 +26,8 @@ public class DataGen {
     @SubscribeEvent
     public static void onDataGen(GatherDataEvent event) {
         if (event.includeServer()) {
-            event.getGenerator().addProvider(new LootTableGen(event.getGenerator()));
+            event.getGenerator().addProvider(true, new LootTableGen(event.getGenerator()));
+            event.getGenerator().addProvider(true, new ModTagProvider(event.getGenerator(), event.getExistingFileHelper()));
         }
     }
 
